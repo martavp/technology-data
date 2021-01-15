@@ -44,8 +44,16 @@ source_dict = {
                 "co2" :'Entwicklung der spezifischen Kohlendioxid-Emissionen des deutschen Strommix in den Jahren 1990 - 2018',
                 # gas pipeline costs
                 "ISE": "WEGE ZU EINEM KLIMANEUTRALEN ENERGIESYSEM, Anhang zur Studie, Fraunhofer-Institut für Solare Energiesysteme ISE, Freiburg",
-
-                }
+                #PV learning rate
+                "ITRPV": "International Technology Roadmap for Photovoltaics (ITRPV) 11 Ed. - 2019",
+                #IRENA:renewable capacities 2020
+                "IRENA": "IRENA, Renewable Capacity Statistics - 2019",
+                #Schmidt: Electrolysis and Fuel Cell learning rate
+                "Schmidt": "Schmidt (2019) Projecting the future levelized cost of electricity storage technologies",
+                #Penisa: battery learning rate
+                "Penisa" : "Penisa (2019) Projecting the price of Li-Ion NMC battery packs using a multifactor learning curve model",
+                #Wilson: wind and heat pump learning rate
+                "Wilson": "Wilson (2020) Granular technologies to accelerate decarbonization"}
 
 # ---- sheet names for techs in DEA ------------------------------------------
 
@@ -367,6 +375,57 @@ def add_conventional_data(costs):
 
     return costs
 
+def add_learning_rate(costs):
+    """"
+    add learning rates
+    """
+    # solar from ITRPV
+    costs.loc[('solar', 'learning rate'), 'value'] = 0.23  
+    costs.loc[('solar', 'learning rate'), 'unit'] = " "
+    costs.loc[('solar', 'learning rate'), 'source'] = source_dict['ITRPV']
+    costs.loc[('solar', 'capacity in 2020'), 'value'] = 138539
+    costs.loc[('solar', 'capacity in 2020'), 'unit'] = "MW"
+    costs.loc[('solar', 'capacity in 2020'), 'source'] = source_dict['IRENA']
+    
+    # Battery from Penisa
+    costs.loc[('battery', 'learning rate'), 'value'] = 0.253  
+    costs.loc[('battery', 'learning rate'), 'unit'] = " "
+    costs.loc[('battery', 'learning rate'), 'source'] = source_dict['Penisa']
+    costs.loc[('battery', 'capacity in 2020'), 'value'] = 441000
+    costs.loc[('battery', 'capacity in 2020'), 'unit'] = "MWh"
+    costs.loc[('battery', 'capacity in 2020'), 'source'] = source_dict['Penisa']
+    
+    # Electrolysis and Fuel Cell from Schmidt
+    costs.loc[('H2 Electrolysis', 'learning rate'), 'value'] = 0.18  
+    costs.loc[('H2 Electrolysis', 'learning rate'), 'unit'] = " "
+    costs.loc[('H2 Electrolysis', 'learning rate'), 'source'] = source_dict['Schmidt']
+    costs.loc[('H2 Electrolysis', 'capacity in 2020'), 'value'] = 0 #check value
+    costs.loc[('H2 Electrolysis', 'capacity in 2020'), 'unit'] = "MW"
+    costs.loc[('H2 Electrolysis', 'capacity in 2020'), 'source'] = 0 #check
+    
+    costs.loc[('H2 Fuel Cell', 'learning rate'), 'value'] = 0.18  
+    costs.loc[('H2 Fuel Cell', 'learning rate'), 'unit'] = " "
+    costs.loc[('H2 Fuel Cell', 'learning rate'), 'source'] = source_dict['Schmidt']
+    costs.loc[('H2 Fuel Cell', 'capacity in 2020'), 'value'] = 0 #check value
+    costs.loc[('H2 Fuel Cell', 'capacity in 2020'), 'unit'] = "MW"
+    costs.loc[('H2 Fuel Cell', 'capacity in 2020'), 'source'] = 0 #check
+    
+    # Wind and heat pumps from Wilson
+    costs.loc[('onwind', 'learning rate'), 'value'] = 0.14  
+    costs.loc[('onwind', 'learning rate'), 'unit'] = " "
+    costs.loc[('onwind', 'learning rate'), 'source'] = source_dict['Wilson']
+    costs.loc[('onwind', 'capacity in 2020'), 'value'] = 195776
+    costs.loc[('onwind', 'capacity in 2020'), 'unit'] = "MW"
+    costs.loc[('onwind', 'capacity in 2020'), 'source'] = source_dict['IRENA']
+    
+    costs.loc[('H2 Fuel Cell', 'learning rate'), 'value'] = 0.10  
+    costs.loc[('H2 Fuel Cell', 'learning rate'), 'unit'] = " "
+    costs.loc[('H2 Fuel Cell', 'learning rate'), 'source'] = source_dict['Wilson']
+    costs.loc[('H2 Fuel Cell', 'capacity in 2020'), 'value'] = 0 #check value
+    costs.loc[('H2 Fuel Cell', 'capacity in 2020'), 'unit'] = "MW"
+    costs.loc[('H2 Fuel Cell', 'capacity in 2020'), 'source'] = 0 #check
+    
+    return costs
 
 def add_co2_intensity(costs):
     """"
@@ -1087,7 +1146,9 @@ if __name__ == "__main__":
         costs = add_conventional_data(costs)
         # CO2 intensity
         costs = add_co2_intensity(costs)
-
+        # add learning rates
+        add_learning_rate(costs)
+        
         # include old pypsa costs
         check = pd.concat([costs_pypsa, costs], sort=True, axis=1)
 
